@@ -1,10 +1,10 @@
-package org.example.listing_compare_api;
+package com.listings_compare_api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ListingCompareApiApplicationTests {
+class ListingsCompareApiApplicationTests {
 
 	@Test
 	void contextLoads() {
