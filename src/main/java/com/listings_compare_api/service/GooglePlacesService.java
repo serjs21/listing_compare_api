@@ -7,6 +7,7 @@ import com.listings_compare_api.config.GooglePlacesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -27,6 +28,10 @@ public GooglePlacesService(@Qualifier("googlePlacesRestClient") RestClient clien
     }
 
 
+        @Cacheable(
+      cacheNames = "placesByName",
+        key = "'v1:' + #name.trim().toLowerCase().replaceAll('\\s+', ' ')"
+  )
     public GoogleSearchResponseDTO getPlacesData(String name) {
         GoogleSearchResponseDTO response =
     this.restClient.post()
