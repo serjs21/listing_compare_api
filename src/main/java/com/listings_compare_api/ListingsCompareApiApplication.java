@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class ListingsCompareApiApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(ListingsCompareApiApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(ListingsCompareApiApplication.class, args);
+    }
 }

@@ -15,26 +15,20 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 @EnableCaching
 public class RedisCacheConfig {
 
-  @Bean
-  public RedisCacheManager cacheManager(
-      RedisConnectionFactory connectionFactory, CacheConfig cacheConfig) {
-    GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
-    RedisSerializationContext.SerializationPair<Object> pair =
-        RedisSerializationContext.SerializationPair.fromSerializer(serializer);
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, CacheConfig cacheConfig) {
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
+        RedisSerializationContext.SerializationPair<Object> pair = RedisSerializationContext.SerializationPair
+                .fromSerializer(serializer);
 
-    RedisCacheConfiguration base =
-        RedisCacheConfiguration.defaultCacheConfig()
-            .serializeValuesWith(pair)
-            .disableCachingNullValues();
+        RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(pair)
+                .disableCachingNullValues();
 
-    Map<String, RedisCacheConfiguration> perCache =
-        Map.of(
-            "placesByName", base.entryTtl(Duration.ofDays(cacheConfig.placeIdTtlDays())),
-            "placesByNameNegative", base.entryTtl(Duration.ofDays(cacheConfig.negativeTtlDays())));
+        Map<String, RedisCacheConfiguration> perCache = Map.of("placesByName",
+                base.entryTtl(Duration.ofDays(cacheConfig.placeIdTtlDays())), "placesByNameNegative",
+                base.entryTtl(Duration.ofDays(cacheConfig.negativeTtlDays())));
 
-    return RedisCacheManager.builder(connectionFactory)
-        .cacheDefaults(base)
-        .withInitialCacheConfigurations(perCache)
-        .build();
-  }
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(base).withInitialCacheConfigurations(perCache)
+                .build();
+    }
 }
