@@ -1,6 +1,7 @@
 package com.listings_compare_api.config;
 
 import java.time.Duration;
+import java.util.Map;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -16,18 +17,24 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 public class RedisCacheConfig {
 
   @Bean
-  public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+  public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, CacheConfig cacheConfig) {
     GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
     RedisSerializationContext.SerializationPair<Object> pair =
         RedisSerializationContext.SerializationPair.fromSerializer(serializer);
 
-    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-        .serializeValuesWith(pair)
-        .entryTtl(Duration.ofMinutes(30))
-        .disableCachingNullValues();
+    RedisCacheConfiguration base =
+        RedisCacheConfiguration.defaultCacheConfig()
+            .serializeValuesWith(pair)
+            .disableCachingNullValues();
+
+    Map<String, RedisCacheConfiguration> perCache = Map.of(
+        "placesByName", base.entryTtl(Duration.ofDays(cacheConfig.placeIdTtlDays())),
+        "placesByNameNegative", base.entryTtl(Duration.ofDays(cacheConfig.negativeTtlDays()))
+    );
 
     return RedisCacheManager.builder(connectionFactory)
-        .cacheDefaults(config)
+        .cacheDefaults(base)
+        .withInitialCacheConfigurations(perCache)
         .build();
   }
 }

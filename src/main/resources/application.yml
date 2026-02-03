@@ -1,6 +1,8 @@
 google-places:
   api-key: ${GOOGLE_API_KEY}
   base-url: https://places.googleapis.com
+  batch:
+    concurrency: 20
 
 spring:
     threads:
@@ -12,3 +14,6 @@ spring:
         port: 6379
     cache:
       type: redis
+      place-id-ttl-days: 365
+      reviews-ttl-days: 7
+      negative-ttl-days: 1 

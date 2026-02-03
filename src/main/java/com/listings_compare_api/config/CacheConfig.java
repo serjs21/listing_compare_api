@@ -1,9 +1,10 @@
 package com.listings_compare_api.config;
 
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Configuration
-@EnableCaching
-public class CacheConfig {
-}
+@ConfigurationProperties(prefix = "cache")
+public record CacheConfig(
+    int placeIdTtlDays,
+    int reviewsTtlDays,
+    int negativeTtlDays
+) {}

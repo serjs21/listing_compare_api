@@ -2,7 +2,6 @@ package com.listings_compare_api.service;
 import com.listings_compare_api.dto.GoogleSearchPlacesBody;
 import com.listings_compare_api.dto.GoogleSearchResponseDTO;
 import com.listings_compare_api.ConfigDebug;
-import com.listings_compare_api.config.GooglePlacesConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,26 +14,33 @@ import org.springframework.web.client.RestClient;
 public class GooglePlacesService {
         private static final Logger log = LoggerFactory.getLogger(ConfigDebug.class);
         private final @Qualifier("googlePlacesRestClient") RestClient restClient;
-    // private final GooglePlacesConfig config;
 
-public GooglePlacesService(@Qualifier("googlePlacesRestClient") RestClient client,
-        GooglePlacesConfig config) {
-    this.restClient = client;
-    // this.config = config;
-}
+
+    private static String normalizeNameString(String name) {
+        return name == null ? "" : name.trim().toLowerCase().replaceAll("\\s+", " ");
+    }
+
+
+    public GooglePlacesService(@Qualifier("googlePlacesRestClient") RestClient client) {
+            this.restClient = client;
+    }
 
     public static String ping() {
         return "ça marche";
     }
 
-
-        @Cacheable(
-      cacheNames = "placesByName",
-        key = "'v1:' + #name.trim().toLowerCase().replaceAll('\\s+', ' ')"
+        @Cacheable( 
+        cacheNames = "placesByName",
+        key = "'v1:' + T(com.listings_compare_api.service.GooglePlacesService).normalizeNameString(#name)",
+        sync = true
   )
     public GoogleSearchResponseDTO getPlacesData(String name) {
-        GoogleSearchResponseDTO response =
-    this.restClient.post()
+
+            if (isNegativeCached(name)) {
+      return new GoogleSearchResponseDTO(java.util.List.of());
+            }
+
+        GoogleSearchResponseDTO response = this.restClient.post()
         .uri("/v1/places:searchText")
         .header("X-Goog-FieldMask",
             "places.id,places.displayName,places.formattedAddress")
@@ -45,17 +51,21 @@ public GooglePlacesService(@Qualifier("googlePlacesRestClient") RestClient clien
         return response;
     }
 
-    public void debugRequest(String name) {
-        var entity =
-    restClient.post()
-        .uri("/v1/places:searchText")
-        .header("X-Goog-FieldMask",
-            "places.id,places.displayName,places.formattedAddress")
-        .body(new GoogleSearchPlacesBody(name))
-        .retrieve()
-        .toEntity(String.class);
+// Negative caching methods
 
-log.info("⬅️ Raw body:\n{}", entity.getBody());
+@Cacheable(
+      cacheNames = "placesByNameNegative",
+      key = "'v1:' + T(com.listings_compare_api.service.GooglePlacesService).normalizeNameString(#name)"
+  )
+  public boolean isNegativeCached(String name) {
+    return false;
+  }
 
-    }
+  @org.springframework.cache.annotation.CachePut(
+      cacheNames = "placesByNameNegative",
+      key = "'v1:' + T(com.listings_compare_api.service.GooglePlacesService).normalizeNameString(#name)"
+  )
+  public boolean cacheNegative(String name) {
+    return true;
+  }
 }
