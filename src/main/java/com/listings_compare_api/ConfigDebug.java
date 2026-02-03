@@ -11,16 +11,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigDebug {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigDebug.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfigDebug.class);
 
-    @Bean
-    ApplicationRunner debug(Environment env, GooglePlacesConfig cfg) {
-        return args -> {
-            log.info("ENV google-places.base-url = {}", 
-                env.getProperty("google-places.base-url"));
-            log.info("CFG baseUrl = {}", cfg.baseUrl());
-            log.info("CFG apiKey present = {}", 
-                cfg.apiKey() != null && !cfg.apiKey().isBlank());
-        };
-    }
-}   
+  @Bean
+  ApplicationRunner debug(Environment env, GooglePlacesConfig cfg) {
+    return args -> {
+      log.info("ENV google-places.base-url = {}", env.getProperty("google-places.base-url"));
+      log.info("CFG baseUrl = {}", cfg.baseUrl());
+      log.info("CFG apiKey present = {}", cfg.apiKey() != null && !cfg.apiKey().isBlank());
+    };
+  }
+}

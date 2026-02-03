@@ -6,11 +6,6 @@ public record ReviewDTO(
     String text,
     String languageCode,
     AuthorAttribution authorAttribution,
-    String publishTime
-) {
-    public record AuthorAttribution(
-        String displayName,
-        String uri,
-        String photoUri
-    ) {}
+    String publishTime) {
+  public record AuthorAttribution(String displayName, String uri, String photoUri) {}
 }

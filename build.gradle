@@ -46,6 +46,13 @@ spotbugs {
     toolVersion = '4.8.3'
 }
 
+spotless {
+    java {
+        googleJavaFormat("1.22.0")
+        target("src/**/*.java")
+    }
+}
+
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
     reports {
         html.required.set(true)
